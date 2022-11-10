@@ -39,14 +39,25 @@ jobs:
           name: dist-files
           # donde se almacenan los ficheros
           # package.json es redundante. Solo para ver como se trabaja con más de un path
-          path: |
-            dist            
-            package.json
+          # path: |
+          #  dist
+          #  package.json
+          path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
     # Aquí también podríamos querer usar los ficheros obtenidos en el build
     # Esto es un segundo paso, cuando accedemos a esos ficheros ya descargados en local.
     steps:
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        # Hay que indicar el identificador de artifact
+        # Con esto obtendrá el fichero zip producido por el step Upload artifacts del job build,
+        # lo descargará y lo descomprimirá
+        with:
+          name: dist-files
+        # Solo para ver que tenemos los ficheros
+      - name: Output contents
+        run: ls
       - name: Deploy
         run: echo "Deploying..."
