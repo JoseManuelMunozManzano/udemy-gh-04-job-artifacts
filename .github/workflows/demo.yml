@@ -38,9 +38,10 @@ jobs:
           # nombre del artifact necesario para recuperarlo, especialmente en los siguientes jobs
           name: dist-files
           # donde se almacenan los ficheros
+          # package.json es redundante. Solo para ver como se trabaja con más de un path
           path: |
-            dist
-            package.json # redundante. Solo para ver como se trabaja con más de un path
+            dist            
+            package.json
   deploy:
     needs: build
     runs-on: ubuntu-latest
