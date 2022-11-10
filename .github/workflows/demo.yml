@@ -18,6 +18,13 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    # Necesario crear la key outputs para definir los job outputs del job (no del step)
+    # En el ejemplo, el identificador script-file lo elegimos nosotros y es el que usaremos
+    # para poder acceder en otro job a ese valor.
+    # El publish es el id
+    # El script-filex es el del run
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-filex }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -25,6 +32,15 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+      # Job output: valores que se usan en otros jobs
+      # En este ejemplo vamos a obtener el nombre del fichero .js generado
+      # El par clave-valor se escribe en un fichero cuyo path está almacenado en la variable GITHUB_OUTPUT
+      - name: Publish JS filename
+        # Importante este id porque lo cogeremos en la key outputs
+        id: publish
+        run: find dist/assets/*.js -type f -execdir echo 'script-filex={}' >> $GITHUB_OUTPUT ';'
+        # Forma antigua que no se va a soportar en el futuro
+        # run: find dist/assets/*.js -type f -execdir echo '::set-output name=script-filex::={}' ';'
       # Queremos descargar los ficheros obtenidos por el comando build. En el workflow,
       # cuando este termina, esos ficheros se pierden.
       # Los queremos para inspeccionarlos, para testearlos localmente o hacer el upload a un
@@ -59,5 +75,11 @@ jobs:
         # Solo para ver que tenemos los ficheros
       - name: Output contents
         run: ls
+        # Accediendo al job output
+      - name: Output filename
+        # Se indica needs.build porque este job tiene needs: build
+        # output es necesario indicarlo
+        # script-file es el identificador del job output indicado en el job build
+        run: echo "${{ needs.build.outputs.script-file }}"
       - name: Deploy
         run: echo "Deploying..."
