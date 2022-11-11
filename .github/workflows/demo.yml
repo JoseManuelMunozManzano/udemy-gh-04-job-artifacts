@@ -9,6 +9,15 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
+        # Se va a cachear las dependencias para poder usarlas en otros jobs y en siguientes workflows
+        # salvo que las dependencias cambien y deben reinstalarse.
+        # Se añade cache con un nuevo step justo antes del step que se quiere cachear
+        # https://github.com/actions/cache
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
       - name: Lint code
